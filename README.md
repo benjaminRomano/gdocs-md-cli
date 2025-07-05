@@ -36,6 +36,16 @@ You have two options for authentication:
 
 ## Getting Started
 
+### Option 1: Using Pre-built Binaries (Recommended)
+
+You can download the latest pre-built binary from [GitHub Releases](https://github.com/benjaminromano/gdocs-md-cli/releases).
+
+```bash
+curl -L https://github.com/benjaminRomano/gdocs-md-cli/releases/download/1.0/gdocs-md.jar -o gdocs-md.jar
+```
+
+### Option 2: Building from Source
+
 ```bash
 # Clone the repo
 git clone https://github.com/benjaminromano/gdocs-md-cli.git
@@ -43,12 +53,14 @@ cd gdocs-md-cli
 
 # Build CLI
 ./gradlew build
+
+java -jar build/libs/gdocs-md.jar --help
 ```
 
 ## Usage
 
 ```bash
-$ java -jar build/libs/gdocs-md.jar --help
+$ java -jar gdocs-md.jar --help
 Usage: gdocs-md [<options>]
 
 Options:
