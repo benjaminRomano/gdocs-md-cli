@@ -26,7 +26,7 @@ You have two options for authentication:
 #### Option 1: Application Default Credentials (Recommended for local development)
 
 1. Install and initialize the [Google Cloud CLI](https://cloud.google.com/sdk/docs/install)
-2. Run: `gcloud auth application-default login`
+2. Run: `gcloud auth application-default login --scopes=https://www.googleapis.com/auth/drive,https://www.googleapis.com/auth/drive,https://www.googleapis.com/auth/cloud-platform`
 
 #### Option 2: OAuth 2.0 Client ID
 
