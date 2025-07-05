@@ -10,7 +10,7 @@ Google Docs natively supports exporting to Markdown; however, the output include
 compressed images. The following CLI tool addresses these issues by:
 
 - Converting invalid header links to valid Markdown anchor links
-- Replacing compressed, embedded base64 images with the original images
+- Replacing compressed, embedded base64 images with the original images, either using Google's content URIs or downloading them to a local directory
 
 ## Prerequisites
 
@@ -64,10 +64,12 @@ $ java -jar gdocs-md.jar --help
 Usage: gdocs-md [<options>]
 
 Options:
-  -f, --file-id=<text>    Google Docs file ID or URL (e.g. 'https://docs.google.com/document/d/...')
-  -o, --output=<path>     Output file path
-  -a, --auth=(adc|oauth)  Authentication method
-  -h, --help              Show this message and exit
+  -f, --file-id=<text>     Google Docs file ID or URL (e.g. 'https://docs.google.com/document/d/...')
+  -o, --output=<path>      Output file path
+  -a, --auth=(adc|oauth)   Authentication method
+  -d, --download-images    Download images to a local directory
+  -i, --images-dir=<path>  Directory to save downloaded images (default: 'images' next to output file)
+  -h, --help               Show this message and exit
 ```
 
 ### Convert a Google Doc to Markdown
@@ -75,17 +77,46 @@ Options:
 Convert a Google Doc to Markdown
 
 ```bash
-# Convert a Google Doc with file ID and save to output.md
-# By default Application Default Credentials are used
+# Basic conversion (images will be referenced using Google's content URIs)
 $ java -jar build/libs/gdocs-md.jar --file-id=1234567890 --output=output.md
 
-# Convert a Google Doc with URL and save to output.md
-# By default Application Default Credentials are used
+# Convert using a document URL
 $ java -jar build/libs/gdocs-md.jar --file-id=https://docs.google.com/document/d/1234567890 --output=output.md
 
-# Convert a Google Doc using OAuth authentication
+# Convert using OAuth authentication
 $ java -jar build/libs/gdocs-md.jar --file-id=1234567890 --output=output.md --auth=oauth
+
+# Download images to an images directory next to the output file
+$ java -jar build/libs/gdocs-md.jar --file-id=1234567890 --output=output.md --download-images
+
+# Specify a custom directory for downloaded images
+$ java -jar build/libs/gdocs-md.jar --file-id=1234567890 --output=output.md --download-images --images-dir=assets/images
 ```
+
+### Image Handling
+
+By default, the tool will use Google's image URLs in the generated Markdown. However, you can choose to download images locally:
+
+- `--download-images`: When specified, images will be downloaded to a local directory
+- `--images-dir`: (Optional) Specify a custom directory for downloaded images (default: `images` next to the output file)
+
+When using `--download-images`, the tool will:
+
+1. Create the specified images directory (or `images` if not specified)
+2. Download all images from the document
+3. Update the Markdown to reference the local image files
+4. Preserve the original image filenames and extensions
+
+Example output structure when using `--download-images`:
+
+```
+output.md
+images/
+  image1.png
+  image2.jpg
+```
+
+**Tip**: It's recommended to use an LLM to fix-up the images by using descriptive names and generating alt-text based on the context around the image in the outputted Markdown file.
 
 ## Development
 

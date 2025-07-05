@@ -1,22 +1,46 @@
+package com.bromano
+
+import java.nio.file.Path
 import kotlin.text.Regex
 
 /**
  * Patch markdown to properly conform to `.md` format
  *
- * 1. Replace the embedded base64 images with the underlying Google doc image URIs
+ * 1. Replace the embedded base64 images with either local or remote image references
  * 2. Strip out invalid header links {#...}
  * 3. Update Table of Contents with proper links format
+ *
+ * @param markdown The original markdown content
+ * @param contentUris List of image URIs from the Google Doc
+ * @param outputFile The output markdown file path (used to determine relative image paths)
+ * @param imagesDir The directory to save downloaded images. If empty, content URIs will be patched in.
+ * @return Processed markdown content
  */
 fun patchMarkdown(
     markdown: String,
     contentUris: List<String>,
+    outputFile: Path,
+    imagesDir: Path? = null,
 ): String {
     var updatedMarkdown = markdown.substringBefore("[image1]: <data:image/png;base64,")
+
     contentUris.mapIndexed { index, uri ->
-        // `<img>` tag is used over ![] syntax to enable easier re-sizing after patching.
+        val imageRef =
+            if (imagesDir == null) {
+                uri
+            } else {
+                val localImage = downloadImage(uri, imagesDir, "image${index + 1}")
+                outputFile.parent
+                    .relativize(imagesDir)
+                    .resolve(localImage.name)
+                    .toString()
+                    .replace("\\", "/")
+            }
+
+        // Replace the image reference in the markdown
         updatedMarkdown =
             updatedMarkdown
-                .replace("![][image${index + 1}]", "<img src=\"$uri\" />")
+                .replace("![][image${index + 1}]", "<img src=\"$imageRef\" />")
     }
 
     updatedMarkdown =
